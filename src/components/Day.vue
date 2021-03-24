@@ -1,9 +1,12 @@
 <template>
   <div
-    class="rounded-xl p-4 day bg-white w-1/6 h-64"
-    v-bind:class="{ 'w-2/6 -mt-2 shadow-xl h-72': dayNumber == today(), 'w-1/6 shadow': dayNumber != today() }"
+    class=" p-4 day bg-white w-1/6 h-full"
+    v-bind:class="{
+      'w-2/6 shadow-xl z-10': dayNumber == today(),
+      'w-1/6 shadow': dayNumber != today(),
+    }"
   >
-    <div class="flex flex-wrap z-10 relative h-full justify-start">
+    <div class="flex flex-wrap z-10 relative h-full flex-col justify-start">
       <div class="flex w-full justify-between h-8">
         <h1 class="text-2xl font-bold capitalize h-8">{{ label }}</h1>
         <div
@@ -13,56 +16,71 @@
         </div>
       </div>
       <div
-        class="w-full flex flex-col text-sm font-medium text-gray-500 mt-2 divide-y divide-fuchsia-300"
+        class="w-full flex flex-grow flex-col items-start justify-start text-sm font-medium text-gray-500 mt-2 divide-y -mx-1"
       >
-        <div class="py-2 flex items-center justify-between">
-          <div class="flex items-center">
-            <div
-              class="rounded-full mr-2 h-4 w-4 bg-green-500 text-white flex items-center justify-center"
-            >
-              <check-icon size="0.75x"></check-icon>
+        <draggable
+          v-model="tasks"
+          class="w-full"
+          @start="drag = true"
+          @end="drag = false"
+          v-bind="dragOptions"
+        >
+          <transition-group type="transition" name="flip-list" class="w-full min-h-24 block">
+            <Task
+              v-for="task in tasks"
+              :key="task.id"
+              :id="task.id"
+              :active="task.active"
+              :title="task.title"
+            ></Task>
+          </transition-group>
+            <div slot="footer" key="footer">
+              <div class="py-2 px-3 mb-1 flex w-full items-center justify-start cursor-pointer rounded-sm hover:text-black hover:shadow text-xs uppercase font-semibold text-gray-400">
+              <div
+                class="rounded-full mr-2 cursor-pointer h-6 w-6 flex items-center justify-center transform"
+              >
+                <PlusIcon size="1.5x"></PlusIcon>
+              </div>
+                AJOUTER UNE TACHE
+              </div>
             </div>
-            In stock
-          </div>
-        </div>
-
-        <div class="py-2 flex items-center justify-between">
-          <div class="flex items-center">
-            <div
-              class="rounded-full mr-2 h-4 w-4 ring-2 ring-inset ring-gray-200 cursor-pointer hover:ring-gray-400 text-white flex items-center justify-center"
-            ></div>
-            In stock
-          </div>
-        </div>
+        </draggable>
       </div>
 
-        <div class="flex-grow">
-          <!-- This item will grow -->
-        </div>
-        <div class="mt-auto flex-auto">
-          <button
-            class="px-4 py-2 flex items-center justify-center rounded-md bg-blue-600 text-white"
-            type="submit"
-          >
-            Buy now
-          </button>
-        </div>
+      <div class="mt-auto flex">
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { CheckIcon } from "vue-feather-icons";
+import draggable from "vuedraggable";
+import { CheckIcon, PlusIcon } from "vue-feather-icons";
+import Task from "./Task";
 import moment from "moment";
 
 export default {
   name: "Day",
   components: {
+    draggable,
+    Task,
     CheckIcon,
+    PlusIcon
   },
   data() {
     return {
       label: "Loading...",
+      tasks: [
+        { id: Math.round(Math.random() * 1000), active: true, title: "test" },
+        {
+          id: Math.round(Math.random() * 1000),
+          active: false,
+          title: "test 1",
+        },
+        { id: Math.round(Math.random() * 1000), active: true, title: "test 2" },
+        { id: Math.round(Math.random() * 1000), active: true, title: "test 3" },
+        { id: Math.round(Math.random() * 1000), active: true, title: "test 4" },
+      ],
     };
   },
   props: ["dayNumber"],
@@ -75,18 +93,19 @@ export default {
       .format("dddd");
   },
   methods: {
-    today: function () {
+    today: function() {
       //moment().now().format('d')
       return 2;
     },
   },
+
+  computed: {
+    dragOptions() {
+      return {
+        animation: 200,
+        group: "tasks",
+      };
+    },
+  },
 };
 </script>
-
-<style scoped>
-.day .flex {
-}
-.day {
-  position: relative;
-}
-</style>

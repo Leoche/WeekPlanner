@@ -3,10 +3,15 @@ module.exports = {
   darkMode: 'media', // or 'media' or 'class'
   theme: {
     extend: {},
+    minHeight: {
+     '0': '0',
+     '24': '24px',
+    }
   },
   variants: {
     extend: {
       ringColor: ['hover', 'active'],
+      scale: ['hover', 'active'],
     },
   },
   plugins: [],
